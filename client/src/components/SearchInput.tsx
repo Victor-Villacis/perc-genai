@@ -14,15 +14,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ handleOpen }) => {
         <div style={{ width: '80%', margin: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <div>
-                    <Typography variant="h6" style={{ fontSize: '20px', marginRight: '5px', color: "green" }}>
-                        GPT
-                    </Typography>
-                    <Typography variant="body2" style={{ fontSize: '10px' }}>
-                        Powered For Your Concern
+                    <img src="src/assets/perc-logo.png" alt="word icon" style={{ width: '300px', }} />
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: "#004387" }}>
+                        <span style={{ color: '#004387' }}>Search Within Document</span>
                     </Typography>
                 </div>
                 <Button type="button" onClick={handleOpen}>
-                    <button >Upload File and Run Summary</button>
+                    Upload File and Run Summary
                 </Button>
             </div>
 

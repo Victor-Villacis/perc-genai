@@ -2,10 +2,8 @@ import { Box } from '@mui/material';
 // import dropzone
 import FileDropzone from '../components/FileDropzone';
 import SearchInput from '../components/SearchInput';
-import NavBox from '../components/Navbox';
-import ContentBox from '../components/ContentBox';
 import React from 'react';
-
+import ContentBoxContainer from '../components/ContentBoxContainer';
 export default function Index() {
 
     const [open, setOpen] = React.useState(true);
@@ -30,7 +28,7 @@ export default function Index() {
             <br />
             <br />
             <br />
-            <ContentBox />
+            <ContentBoxContainer />
 
         </Box>
     );

@@ -9,6 +9,7 @@ interface FileDropzoneProps {
     handleClose: () => void;
 }
 
+
 export default function FileDropzone({ open, handleOpen, handleClose }: FileDropzoneProps) {
     const [files, setFiles] = React.useState<File[]>([]);
     const [loading, setLoading] = React.useState(false);
@@ -25,9 +26,14 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return Promise.reject("Failed to upload file");
+                }
+                return response.json();
+            })
             .then(data => {
-                console.log(data);
+                console.log("Server response:", data);
                 setLoading(false);
                 setShowEmailModal(true);
             })
@@ -47,7 +53,7 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
     };
 
     return (
-        <div>
+        <>
             <DropzoneDialog
                 open={open}
                 onSave={handleSave}
@@ -57,8 +63,11 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                 onClose={handleClose}
                 dialogTitle={<p style={{ textAlign: 'center' }}>Upload File and Run Summary</p>}
                 dropzoneText="Drag and drop a file here or click"
-                submitButtonText={<button>Run Summary</button>}
-                cancelButtonText={<button>Cancel</button>}
+                submitButtonText={"Run Summary"}
+                filesLimit={1}
+                // remove the horizontal scroll bar after uploading a file
+                previewGridProps={{ container: { spacing: 2, style: { width: '100%', margin: 0 } } }}
+
             />
 
             <Backdrop open={loading} style={{ color: '#fff', zIndex: 1500, flexDirection: 'column', alignItems: 'center' }}>
@@ -93,7 +102,7 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                     </Button>
                 </div>
             </Backdrop>
-        </div>
+        </>
     );
 
 

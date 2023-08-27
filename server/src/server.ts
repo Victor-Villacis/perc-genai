@@ -1,106 +1,62 @@
 import express from 'express';
-import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
+import cors, { CorsOptions } from 'cors';
 import { createServer } from 'http';
-import { Server as SocketIoServer } from 'socket.io';
-import fileUpload, { UploadedFile } from 'express-fileupload';
-import { spawn } from 'child_process';
+import { Server } from 'socket.io';
+import fileUpload from 'express-fileupload';
+import { setupSockets } from './sockets/sockets';
+import fileRoutes from './routes/fileRoutes';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const app = express();
-const port = process.env.PORT || 3000;
-
+const app = express();      // Fallback to port 3000
 const httpServer = createServer(app);
-const io = new SocketIoServer(httpServer, {
+
+
+const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
+const SERVER_PORT = process.env.SERVER_PORT || 3000;
+const CLIENT_HOST = process.env.CLIENT_HOST || 'localhost';
+const CLIENT_PORT = process.env.CLIENT_PORT || 5173;
+
+export const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST"]
+        origin: `http://${CLIENT_HOST}:${CLIENT_PORT}`,
+        methods: ['GET', 'POST']
     }
 });
 
-app.use(cors({
-    origin: 'http://localhost:5173'
-}));
+
+const corsOptions = (req: express.Request, callback: (err: Error | null, options?: CorsOptions) => void) => {
+    let corsOptions;
+    const allowedOrigins = [`http://${CLIENT_HOST}:${CLIENT_PORT}`, `http://${SERVER_HOST}:${SERVER_PORT}`];
+
+    // Check if Origin header is not undefined
+    const origin = req.header('Origin');
+    if (origin && allowedOrigins.includes(origin)) {
+        corsOptions = { origin: true };
+    } else {
+        corsOptions = { origin: false };
+    }
+
+    callback(null, corsOptions);
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+setupSockets(io);
+
 app.use(fileUpload());
-
-interface ParsedData {
-    [key: string]: {
-        [key: string]: {
-            [key: string]: string;
-        };
-    };
-}
-
-app.get('/getData', (req, res) => {
-    fs.readFile(path.join(__dirname, 'ouput_folder/data.txt'), 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
-        if (err) {
-            console.error('Error reading the file:', err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-
-        const lines = data.split('\n');
-        let currentSection = '';
-        let currentSubsection = '';
-        const parsedData: ParsedData = {};
-
-        lines.forEach((line: string) => {
-            if (!line.trim()) return;
-
-            const indentation = line.search(/\S/);
-
-            if (indentation === 0) {
-                currentSection = line.trim();
-                parsedData[currentSection] = {};
-            } else if (indentation === 5) {
-                currentSubsection = line.trim();
-                parsedData[currentSection][currentSubsection] = {};
-            } else if (indentation === 10) {
-                if (line.includes(': ')) {
-                    const [key, value] = line.trim().split(': ');
-                    parsedData[currentSection][currentSubsection][key] = value;
-                }
-            }
-        });
-
-        res.json(parsedData);
-    });
+app.use((req, res, next) => {
+    console.log('File upload middleware hit');
+    console.log('Files:', req.files);
+    console.log('Body:', req.body);
+    console.log('Headers:', req.headers);
+    console.log('Params:', req.params);
+    console.log('Query:', req.query);
+    next();
 });
+app.use(fileRoutes(io));
 
-app.post('/upload', (req, res) => {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('No files were uploaded.');
-    }
+httpServer.listen(SERVER_PORT, () => {
+    console.log(`Server is running at http://${SERVER_HOST}:${SERVER_PORT}`);
 
-    const uploadedFile = req.files.uploadedFile as UploadedFile;
-    const savePath = path.join(__dirname, 'input_folder', uploadedFile.name);
-
-    uploadedFile.mv(savePath, (err: any) => {
-        if (err) {
-            return res.status(500).send(err);
-        }
-
-        const pythonScriptPath = path.join(__dirname, './mock_processor.py');
-        const python = spawn('python', [pythonScriptPath]);
-
-        python.stdout.on('data', function (data) {
-            console.log('Pipe data from python script ...');
-        });
-
-        python.on('close', (code) => {
-            console.log(`child process close all stdio with code ${code}`);
-            if (code === 0) { // Ensure the Python script executed without errors
-                io.emit('fileReady'); // Notify all connected clients that the file is ready
-                res.send('File uploaded and script executed!');
-            } else {
-                res.status(500).send('Error executing script.');
-            }
-        });
-
-    });
-});
-
-httpServer.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
 });

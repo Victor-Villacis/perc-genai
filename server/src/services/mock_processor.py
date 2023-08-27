@@ -87,7 +87,8 @@ NMS Support
 """
 
 if __name__ == "__main__":
-    time.sleep(3)  # Simulate a processing delay
-    output_path = "C:\\Users\\Victor\\Documents\\Johnson&Johnson\\PERC\\server\\src\\ouput_folder\\data.txt"
-    with open(output_path, 'w') as file:
+    print("Processing data...")
+    time.sleep(1)  # Simulate a processing delay
+    output_path = "C:\\Users\\Victor\\Documents\\Johnson&Johnson\\PERC\\server\\src\\services\\output_folder\\data.txt"
+    with open(output_path, "w") as file:
         file.write(data)
