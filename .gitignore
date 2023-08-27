@@ -1,1 +1,47 @@
-node_modules
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Python virtual environment
+.venv/
+scripts/.venv/
+
+# Environment files
+*.env
+client/.env
+server/.env
+sripts/.env
+
+# Log files
+*.log
+
+# Build folders
+client/build/
+client/dist/
+server/build/
+server/dist/
+
+# Cache folders
+.cache/
+client/.cache/
+server/.cache/
+
+# IDE / Editor files
+.vscode/
+.idea/
+
+# Input and output folders
+server/src/services/input_folder/*
+server/src/services/output_folder/*
+
+# Lock files optional
+# scripts/yarn.lock
+# scripts/package-lock.json
+
+# Misc
+*.swp
+*.swo
+*.bak
+*.tmp
+.DS_Store

@@ -7,8 +7,7 @@ import { setupSockets } from './sockets/sockets';
 import fileRoutes from './routes/fileRoutes';
 import dotenv from 'dotenv';
 dotenv.config();
-
-const app = express();      // Fallback to port 3000
+const app = express();
 const httpServer = createServer(app);
 
 

@@ -1,4 +1,5 @@
 import time
+import os
 
 data = """
 Introductions
@@ -89,6 +90,20 @@ NMS Support
 if __name__ == "__main__":
     print("Processing data...")
     time.sleep(1)  # Simulate a processing delay
-    output_path = "C:\\Users\\Victor\\Documents\\Johnson&Johnson\\PERC\\server\\src\\services\\output_folder\\data.txt"
+
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+
+    # Construct the relative path to the output folder
+    output_folder = os.path.join(script_dir, "output_folder")
+
+    # Make sure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # Create the output file path
+    output_path = os.path.join(output_folder, "data.txt")
+
+    # Write to the file
     with open(output_path, "w") as file:
-        file.write(data)
+        file.write("Your data here")

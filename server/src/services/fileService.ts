@@ -4,6 +4,8 @@ import { UploadedFile } from 'express-fileupload';
 import { spawn } from 'child_process';
 import { Server as SocketIoServer } from 'socket.io';
 import { ParsedData } from '../models/parsedDataModel';
+const config = require('../../config.json')
+
 
 
 // Function to read data based on type (detailed or overall)
@@ -61,7 +63,10 @@ export const uploadFile = async (uploadedFile: UploadedFile, io: SocketIoServer)
                 return;
             }
 
-            const pythonScriptPath = path.join(__dirname, './mock_processor.py');
+
+            const pythonScriptPath = path.resolve(config.pythonScriptsDir, 'mock_processor.py');
+            console.log('Executing python script at:', pythonScriptPath);
+
             const python = spawn('python', [pythonScriptPath]);
 
             python.stdout.on('data', (data) => {

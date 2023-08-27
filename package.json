@@ -14,7 +14,8 @@
     "client:dev": "yarn workspace client dev",
     "server:dev": "yarn workspace server dev",
     "client:build": "yarn workspace client build",
-    "server:build": "yarn workspace server build"
+    "server:build": "yarn workspace server build",
+    "install:all": "node projectSetup.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.1"
