@@ -11,7 +11,7 @@ scripts/.venv/
 *.env
 client/.env
 server/.env
-sripts/.env
+scripts/.env
 
 # Log files
 *.log
