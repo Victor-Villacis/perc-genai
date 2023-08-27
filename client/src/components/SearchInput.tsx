@@ -20,7 +20,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ handleOpen }) => {
                     </Typography>
                 </div>
                 <Button type="button" onClick={handleOpen}>
-                    Upload File and Run Summary
+                    <span style={{ border: "1px solid green", padding: '5px', borderRadius: '5px' }}>Upload File and Run Summary</span>
                 </Button>
             </div>
 

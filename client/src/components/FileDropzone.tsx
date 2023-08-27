@@ -13,18 +13,27 @@ interface FileDropzoneProps {
 export default function FileDropzone({ open, handleOpen, handleClose }: FileDropzoneProps) {
     const [files, setFiles] = React.useState<File[]>([]);
     const [loading, setLoading] = React.useState(false);
-    const [showEmailModal, setShowEmailModal] = React.useState(false);
     const [email, setEmail] = React.useState('');
+    const [emailSubmitted, setEmailSubmitted] = React.useState(false);
+    const [validationMessage, setValidationMessage] = React.useState<string | null>(null);
+
 
     const handleSave = (newFiles: File[]) => {
         setLoading(true);
 
         const formData = new FormData();
         formData.append('uploadedFile', newFiles[0]);
+        formData.append('email', email);
+
+
+        // for (var pair of formData.entries()) {
+        //     console.log(pair[0] + ', ' + pair[1]);
+        // }
 
         fetch('http://localhost:3000/upload', {
             method: 'POST',
-            body: formData
+            body: formData,
+
         })
             .then(response => {
                 if (!response.ok) {
@@ -35,7 +44,9 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
             .then(data => {
                 console.log("Server response:", data);
                 setLoading(false);
-                setShowEmailModal(true);
+                setFiles([]);
+                setEmail('');
+                setEmailSubmitted(false);
             })
             .catch(error => {
                 console.error('Error uploading file:', error);
@@ -45,11 +56,15 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
         setFiles(newFiles);
         handleClose();
     };
-
     const handleEmailSubmit = () => {
-        // Handle email submission logic here
-        console.log("Email submitted:", email);
-        setShowEmailModal(false);
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (emailPattern.test(email)) {
+            console.log("Email submitted:", email);
+            setEmailSubmitted(true);
+            setValidationMessage(null);
+        } else {
+            setValidationMessage("Please enter a valid email address.");
+        }
     };
 
     return (
@@ -61,7 +76,13 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                 showPreviews={true}
                 maxFileSize={5000000}
                 onClose={handleClose}
-                dialogTitle={<p style={{ textAlign: 'center' }}>Upload File and Run Summary</p>}
+                dialogTitle={
+                    <p style={{ textAlign: 'center' }}>
+                        <span style={{ color: 'lightblue', fontWeight: 'bold' }}>Upload File and Run Summary</span>
+                        <br />
+                        <span style={{ color: "yellowgreen", fontWeight: 'bold' }}>One File at a Time</span>
+                    </p>
+                }
                 dropzoneText="Drag and drop a file here or click"
                 submitButtonText={"Run Summary"}
                 filesLimit={1}
@@ -81,7 +102,7 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                     maxWidth: '400px',
                     width: '100%',
                 }}>
-                    <h3 style={{ color: "black", textAlign: 'center', margin: '0 0 10px 0' }}>Enter email to get notified when done</h3>
+                    <h3 style={{ color: "black", textAlign: 'center', margin: '0 0 10px 0' }}>Enter email and get notified when summary is ready.</h3>
                     <TextField
                         fullWidth
                         autoFocus
@@ -90,17 +111,37 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        InputProps={{
+                            readOnly: emailSubmitted,
+                        }}
                     />
+                    {validationMessage && (
+                        <div style={{ color: "red", marginTop: "5px" }}>
+                            {validationMessage}
+                        </div>
+                    )}
+
                     <Button
                         fullWidth
                         variant="contained"
                         color="primary"
                         style={{ marginTop: '10px' }}
                         onClick={handleEmailSubmit}
+                        disabled={emailSubmitted}
                     >
                         Submit
                     </Button>
+                    {emailSubmitted && (
+                        <Button
+                            onClick={() => setEmailSubmitted(false)}
+                        >
+                            Edit Email
+                        </Button>
+                    )}
+
+
                 </div>
+
             </Backdrop>
         </>
     );

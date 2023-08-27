@@ -4,6 +4,7 @@ import { UploadedFile } from 'express-fileupload';
 import { spawn } from 'child_process';
 import { Server as SocketIoServer } from 'socket.io';
 import { ParsedData } from '../models/parsedDataModel';
+import { sendEmail } from './email';
 const config = require('../../config.json')
 
 
@@ -51,7 +52,7 @@ export const getData = async (type: 'detailed' | 'overall'): Promise<ParsedData>
     });
 };
 // Function to handle file upload
-export const uploadFile = async (uploadedFile: UploadedFile, io: SocketIoServer): Promise<void> => {
+export const uploadFile = async (uploadedFile: UploadedFile, io: SocketIoServer, userEmail: string): Promise<void> => {
     return new Promise((resolve, reject) => {
         const savePath = path.join(__dirname, 'input_folder', uploadedFile.name);
         console.log('Saving file to:', savePath);
@@ -77,12 +78,14 @@ export const uploadFile = async (uploadedFile: UploadedFile, io: SocketIoServer)
                 console.error(`Python script error: ${data}`);
             });
 
-            python.on('close', (code) => {
+            python.on('close', async (code) => {
                 console.log(`Python script finished with code ${code}`);
                 if (code === 0) {
                     io.emit('fileReady');
+                    await sendEmail(userEmail, 'Summary Is Ready', 'The Summary has been parsed successfully and is ready to view.');
                     resolve();
                 } else {
+                    await sendEmail(userEmail, 'Summary Uploaded', 'An error occurred while parsing the uploaded file, please try again.');
                     reject('Error executing Python script.');
                 }
             });
