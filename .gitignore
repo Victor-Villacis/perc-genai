@@ -9,8 +9,8 @@ scripts/.venv/
 
 # Environment files
 *.env
-client/.env
-server/.env
+client/src/.env
+server/src/.env
 sripts/.env
 
 # Log files
