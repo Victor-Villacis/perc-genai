@@ -22,6 +22,7 @@ client/dist/
 server/build/
 server/dist/
 
+
 # Cache folders
 .cache/
 client/.cache/
