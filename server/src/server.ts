@@ -16,17 +16,26 @@ const SERVER_PORT = process.env.SERVER_PORT || 3000;
 const CLIENT_HOST = process.env.CLIENT_HOST || 'localhost';
 const CLIENT_PORT = process.env.CLIENT_PORT || 5173;
 
+
+const allowedOrigins = [
+    `http://${CLIENT_HOST}:${CLIENT_PORT}`,
+    `http://${SERVER_HOST}:${SERVER_PORT}`,
+    `http://127.0.0.1:${CLIENT_PORT}`,
+    `http://127.0.0.1:${SERVER_PORT}`
+];
+
 export const io = new Server(httpServer, {
     cors: {
-        origin: `http://${CLIENT_HOST}:${CLIENT_PORT}`,
+        origin: allowedOrigins,
         methods: ['GET', 'POST']
     }
 });
 
 
+
 const corsOptions = (req: express.Request, callback: (err: Error | null, options?: CorsOptions) => void) => {
     let corsOptions;
-    const allowedOrigins = [`http://${CLIENT_HOST}:${CLIENT_PORT}`, `http://${SERVER_HOST}:${SERVER_PORT}`];
+
 
     // Check if Origin header is not undefined
     const origin = req.header('Origin');

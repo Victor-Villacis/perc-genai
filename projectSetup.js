@@ -19,14 +19,14 @@ console.log('\x1b[34m%s\x1b[0m', 'Setting up PERC project...');
 console.log('\x1b[33m%s\x1b[0m', 'Step 1: Installing Workspace Node modules...');
 execute('yarn install');
 
-// Create .env within scripts directory in order to use pipenv with a project-specific virtual environment
+// Create .env within scripts/python directory in order to use pipenv with a project-specific virtual environment
 console.log('\x1b[33m%s\x1b[0m', 'Step 2: Creating or updating .env file...');
-const envFilePath = path.join(__dirname, 'scripts', '.env');
+const envFilePath = path.join(__dirname, 'scripts/python', '.env');
 fs.writeFileSync(envFilePath, 'PIPENV_VENV_IN_PROJECT=1\n', { flag: 'a' });
 
-// Navigate to the scripts directory and set up the Python environment based on the Pipfile
-console.log('\x1b[33m%s\x1b[0m', 'Step 3: Setting up Python environment in ./scripts directory...');
-execute('pipenv install', { cwd: path.join(__dirname, 'scripts') });
+// Navigate to the scripts/python directory and set up the Python environment based on the Pipfile
+console.log('\x1b[33m%s\x1b[0m', 'Step 3: Setting up Python environment in ./scripts/python directory...');
+execute('pipenv install', { cwd: path.join(__dirname, 'scripts/python') });
 
 console.log('\x1b[32m%s\x1b[0m', 'Setup completed successfully.');
 console.log('Run \x1b[36m%s\x1b[0m to start the server.', 'yarn dev');

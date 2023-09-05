@@ -5,13 +5,13 @@ server/node_modules/
 
 # Python virtual environment
 .venv/
-scripts/.venv/
+scripts/python/.venv/
 
 # Environment files
 *.env
 client/.env
 server/.env
-scripts/.env
+scripts/python/.env
 
 # Log files
 *.log
@@ -37,8 +37,8 @@ server/src/services/input_folder/*
 server/src/services/output_folder/*
 
 # Lock files optional
-# scripts/yarn.lock
-# scripts/package-lock.json
+# scripts/python/yarn.lock
+# scripts/python/package-lock.json
 
 # Misc
 *.swp
