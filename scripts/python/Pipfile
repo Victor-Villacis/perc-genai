@@ -8,6 +8,7 @@ pandas = "*"
 docx = "*"
 tiktoken = "*"
 openai = "*"
+python-docx = "*"
 
 [dev-packages]
 
