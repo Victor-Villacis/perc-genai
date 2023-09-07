@@ -5,9 +5,10 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-docx = "*"
 tiktoken = "*"
 openai = "*"
+python-docx = "*"
+lxml = "*"
 
 [dev-packages]
 
