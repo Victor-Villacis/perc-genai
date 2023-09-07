@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ContentBox from './ContentBox';
-import NavBox from './Navbox';
+import NavBox from './NavBox';
 import io from 'socket.io-client';
 
 let SERVER_URL = import.meta.env.VITE_REACT_APP_SERVER_URL;

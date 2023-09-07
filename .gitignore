@@ -8,10 +8,10 @@ server/node_modules/
 scripts/python/.venv/
 
 # Environment files
-*.env
-client/.env
-server/.env
-scripts/python/.env
+# *.env
+# client/.env
+# server/.env
+# scripts/python/.env
 
 # Log files
 *.log
