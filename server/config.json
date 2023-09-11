@@ -1,3 +1,4 @@
 {
-    "pythonScriptsDir": "../scripts/python"
+    "pythonScriptsDir": "../scripts/python",
+    "rScriptsDir": "../scripts/R"
 }

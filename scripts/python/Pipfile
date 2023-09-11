@@ -9,6 +9,7 @@ docx = "*"
 tiktoken = "*"
 openai = "*"
 python-docx = "*"
+python-socketio = "*"
 
 [dev-packages]
 

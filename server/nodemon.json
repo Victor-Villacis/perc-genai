@@ -1,0 +1,9 @@
+{
+    "ignore": [
+        "*.log",
+        "/server/src/services/output_folder/*",
+        "/server/src/services/input_folder/*",
+        "/server/src/services/query_input/*",
+        "/server/src/services/query_output/*"
+    ]
+}
