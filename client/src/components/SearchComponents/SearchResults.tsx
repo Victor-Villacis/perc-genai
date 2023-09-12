@@ -7,7 +7,7 @@ let SERVER_URL = import.meta.env.VITE_REACT_APP_SERVER_URL;
 
 if (!SERVER_URL) {
     console.log("VITE_REACT_APP_SERVER_URL is undefined, using fallback URL.");
-    SERVER_URL = 'http://localhost:3001';
+    SERVER_URL = 'http://localhost:3000';
 } else {
     console.log("Using VITE_REACT_APP_SERVER_URL from environment variables.");
 }

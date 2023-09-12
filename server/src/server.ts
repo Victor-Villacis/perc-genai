@@ -13,7 +13,7 @@ const httpServer = createServer(app);
 
 
 const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
-const SERVER_PORT = process.env.SERVER_PORT || 3001;
+const SERVER_PORT = process.env.SERVER_PORT || 3000;
 const CLIENT_HOST = process.env.CLIENT_HOST || 'localhost';
 const CLIENT_PORT = process.env.CLIENT_PORT || 5173;
 

@@ -1,4 +1,4 @@
-import json, re, textwrap, openai, time, ast, os
+import json, re, textwrap, openai, time, ast, os, sys
 import logging
 import tiktoken
 from collections import defaultdict
@@ -69,6 +69,7 @@ def run_prompt(req, text_inp, engine, max_tokens_num=2000):
         f"API Token Length in run_prompt: {len(openai.api_key) if openai.api_key else 0}"
     )
     print("-----------------------------------------------------")
+    sys.stdout.flush()
 
     try:
         response = openai.ChatCompletion.create(
@@ -95,14 +96,18 @@ def run_prompt(req, text_inp, engine, max_tokens_num=2000):
 
         if "status" in response and response["status"] != 200:
             print(f"Received unexpected status code {response['status']}: {response}")
+            sys.stdout.flush()
+            
         else:
             print(f"API usage: {response['usage']}")
+            sys.stdout.flush()
             return response["choices"][0]["message"]["content"]
 
     except Exception as e:
         print(f"Caught an exception: {e}")
         if "response" in locals():
             print(f"Debug - Response: {response}")
+        sys.stdout.flush()
 
 
 def summarize_file(filename, timestamp, folder, P_1_L_1, P_1_L_2):
@@ -118,6 +123,7 @@ def summarize_file(filename, timestamp, folder, P_1_L_1, P_1_L_2):
 
     print(f"API Token Exists at Start: {'Yes' if openai.api_key else 'No'}")
     print(f"API Token Length at Start: {len(openai.api_key) if openai.api_key else 0}")
+    sys.stdout.flush()
 
     openai.api_base = "https://genaiapimna.jnj.com/openai-chat"
     openai.api_version = "2023-03-15-preview"
@@ -134,6 +140,7 @@ def summarize_file(filename, timestamp, folder, P_1_L_1, P_1_L_2):
     print(f"API Version: {openai.api_version}")
     print(f"Engine: {engine1}")
     print("-----------------------------------------------------")
+    sys.stdout.flush()
 
     retry_limit = 3
     for p in range(len(sub_list)):
@@ -147,6 +154,7 @@ def summarize_file(filename, timestamp, folder, P_1_L_1, P_1_L_2):
             print(f"sub_file={sub_file[:20]}...")
             print(f"engine1={engine1[:20]}...")
             print("-----------------------------------------------------")
+            sys.stdout.flush()
 
             retry_count = 0
             while retry_count < retry_limit:
@@ -200,6 +208,7 @@ def summarize_file(filename, timestamp, folder, P_1_L_1, P_1_L_2):
     print(f"level1sum={level1sum[:20]}...")
     print(f"engine2={engine2[:20]}...")
     print("-----------------------------------------------------")
+    sys.stdout.flush()
 
     try:
         sec_summary = run_prompt(P_1_L_2, level1sum, engine2, max_tokens_num=5000)
@@ -316,10 +325,14 @@ def main():
     # print("********************")
     # print(json.dumps(level2, indent=4))
 
-    with open(os.path.join(outputfolder, "level1.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(outputfolder, "detailed-summary.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump({"Level1Summary": level1}, f, ensure_ascii=False, indent=4)
 
-    with open(os.path.join(outputfolder, "level2.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(outputfolder, "overall-summary.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump({"Level2Summary": level2}, f, ensure_ascii=False, indent=4)
 
     with open(os.path.join(outputfolder, ".done"), "w") as f:
@@ -327,6 +340,7 @@ def main():
 
     logging.basicConfig(level=logging.INFO)
     logging.info("Level 1 and Level 2 summaries have been saved.")
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":

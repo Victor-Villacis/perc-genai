@@ -69,8 +69,11 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
             formData.append('uploadedFile', newFiles[0]);
             formData.append('email', email);
 
-            const response = await axios.post('http://localhost:3001/upload', formData);
-
+             const response = await axios.post('http://localhost:3000/upload', formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+            })
             if (response.status !== 200) {
                 throw new Error("Failed to upload file");
             }

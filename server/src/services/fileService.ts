@@ -30,7 +30,7 @@ export const uploadFile = async (uploadedFile: UploadedFile, io: SocketIoServer)
 
 
 const executePythonScript = async (io: SocketIoServer): Promise<void> => {
-    const pythonScriptPath = path.resolve(config.pythonScriptsDir, 'mock_processor.py');
+    const pythonScriptPath = path.resolve(config.pythonScriptsDir, 'interview-generic-summary.py');
     console.log('Executing python script at:', pythonScriptPath);
 
     try {
@@ -135,7 +135,7 @@ export const writeFile = async (text: string, io: SocketIoServer): Promise<void>
 
 
 export const executeRScript = async (io: SocketIoServer): Promise<void> => {
-    const rScriptPath = path.resolve(config.rScriptsDir, 'output.R');
+    const rScriptPath = path.resolve(config.rScriptsDir, 'gpt_search.R');
     console.log('Executing R script at:', rScriptPath);
 
     try {

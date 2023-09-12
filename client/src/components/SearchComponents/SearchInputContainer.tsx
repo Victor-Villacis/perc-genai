@@ -27,4 +27,3 @@ const SearchInputContainer: React.FC = () => {
 
 export default SearchInputContainer;
 
-

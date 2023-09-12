@@ -66,7 +66,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ handleOpen }) => {
 
     const handleSearch = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/write', {
+            const response = await axios.post('http://localhost:3000/write', {
                 query: query,
             });
             console.log('Server Response:', response.data);
