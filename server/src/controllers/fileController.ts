@@ -1,6 +1,5 @@
 import e, { Request, Response } from 'express';
-import { uploadFile } from '../services/fileService';
-import { getData } from '../services/fileService';
+import { uploadFile, getData, writeFile, getAnswerData } from '../services/fileService';
 import { sendEmail } from '../services/email'; // Update this import path to point to your actual email file where sendEmail function resides.
 
 import { UploadedFile } from 'express-fileupload';
@@ -8,8 +7,35 @@ import { Server as SocketIoServer } from 'socket.io';
 
 type DataType = 'detailed' | 'overall';
 
-// Controller function to handle request for summary data
-export const getSummaryData = async (req: Request, res: Response) => {
+
+
+export const uploadWithIo = (io: SocketIoServer) => {
+    console.log('Upload endpoint hit');
+    return async (req: Request, res: Response) => {
+        console.log('Files:', req.files);
+        try {
+            const uploadedFile = req.files?.uploadedFile as UploadedFile;
+            if (!uploadedFile) {
+                res.status(400).send('No file uploaded');
+                return;
+            }
+            console.log('Body:', req.body);
+            console.log('Uploaded file:', uploadedFile);
+
+            await uploadFile(uploadedFile, io);
+
+            console.log('File uploaded');
+            res.json({ message: 'File uploaded' });
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+        }
+    };
+};
+
+
+export const getSummaryData = (io: SocketIoServer) => async (req: Request, res: Response) => {
 
     console.log('Get summary data endpoint hit');
     try {
@@ -22,7 +48,8 @@ export const getSummaryData = async (req: Request, res: Response) => {
         }
 
         // Invoke service function to get the data based on the type query parameter
-        const data = await getData(type);
+        const data = await getData(type, io);  // Assuming io is available in this scope
+
 
         // Send the data back as JSON
         res.json(data);
@@ -34,27 +61,21 @@ export const getSummaryData = async (req: Request, res: Response) => {
 };
 
 
-
-// In your fileController
-export const uploadWithIo = (io: SocketIoServer) => {
-    console.log('Upload endpoint hit');
+export const writeWithIo = (io: SocketIoServer) => {
+    console.log('Write endpoint hit');
     return async (req: Request, res: Response) => {
-        console.log('Files:', req.files);  // Log the received files
+        console.log('Body:', req.body);
         try {
-            const uploadedFile = req.files?.uploadedFile as UploadedFile;
-            const userEmail = req.body?.email as string;
-            console.log('email:', userEmail);
-            if (!uploadedFile) {
-                res.status(400).send('No file uploaded');
+            const writtenText = req.body.query;  // Assuming you send the text under the key 'query'
+            if (!writtenText) {
+                res.status(400).send('No text provided');
                 return;
             }
-            console.log('Body:', req.body);
-            console.log('Uploaded file:', uploadedFile);
 
-            await uploadFile(uploadedFile, io, userEmail);
+            await writeFile(writtenText, io);  // Write the text to file
 
-            console.log('File uploaded and script executed!');
-            res.json({ message: 'File uploaded and script executed!' });
+            console.log('Text written');
+            res.json({ message: 'Text written' });
 
         } catch (err) {
             console.error(err);
@@ -64,3 +85,15 @@ export const uploadWithIo = (io: SocketIoServer) => {
 };
 
 
+export const getGPTAnswer = (io: SocketIoServer) => async (req: Request, res: Response) => {
+    console.log('Get GPT answer endpoint hit');
+    try {
+
+        const data = await getAnswerData(io);  // Assuming io is available in this scope
+
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+};

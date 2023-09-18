@@ -19,5 +19,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.1"
+  },
+  "dependencies": {
+    "@types/styled-components": "^5.1.26"
   }
 }

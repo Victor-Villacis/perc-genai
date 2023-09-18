@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload';
 import { setupSockets } from './sockets/sockets';
 import fileRoutes from './routes/fileRoutes';
 import dotenv from 'dotenv';
+
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
@@ -50,7 +51,6 @@ const corsOptions = (req: express.Request, callback: (err: Error | null, options
 
 app.use(cors(corsOptions));
 app.use(express.json());
-setupSockets(io);
 
 app.use(fileUpload());
 app.use((req, res, next) => {
@@ -62,7 +62,12 @@ app.use((req, res, next) => {
     console.log('Query:', req.query);
     next();
 });
+setupSockets(io);
 app.use(fileRoutes(io));
+app.use((req, res, next) => {
+    console.log('Origin:', req.headers.origin);
+    next();
+});
 
 httpServer.listen(SERVER_PORT, () => {
     console.log(`Server is running at http://${SERVER_HOST}:${SERVER_PORT}`);

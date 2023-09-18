@@ -1,0 +1,2 @@
+gpt35_api_base = 'https://genaiapimna.jnj.com/openai-chat'
+gpt35_api_key = '228b7c3ed183460abb331208fd2893b3'
