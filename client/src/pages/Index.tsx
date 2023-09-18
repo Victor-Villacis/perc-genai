@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
 // import dropzone
 import FileDropzone from '../components/FileDropzone';
-import SearchInput from '../components/SearchInput';
+import SearchInputContainer from '../components/SearchComponents/SearchInputContainer';
 import React from 'react';
-import ContentBoxContainer from '../components/ContentBoxContainer';
+import ContentBoxContainer from '../components/SummaryComponents/SummaryContainer';
 export default function Index() {
 
     const [open, setOpen] = React.useState(true);
@@ -24,7 +24,7 @@ export default function Index() {
             <br />
             <br />
             <br />
-            <SearchInput handleOpen={handleOpen} />
+            <SearchInputContainer handleOpen={handleOpen} />
             <br />
             <br />
             <br />

@@ -2,65 +2,78 @@ import e, { Request, Response } from 'express';
 import { uploadFile } from '../services/fileService';
 import { getData } from '../services/fileService';
 import { sendEmail } from '../services/email'; // Update this import path to point to your actual email file where sendEmail function resides.
-
+import { handleSearchQuery } from '../services/fileService';
 import { UploadedFile } from 'express-fileupload';
 import { Server as SocketIoServer } from 'socket.io';
+import { readGPTSearchFile } from '../services/fileService'; // Import from the correct location
+import fs from 'fs';
+import path from 'path';
 
 type DataType = 'detailed' | 'overall';
 
-// Controller function to handle request for summary data
-export const getSummaryData = async (req: Request, res: Response) => {
-
+export const getSummaryData = async (req: Request, res: Response): Promise<void> => {
     console.log('Get summary data endpoint hit');
     try {
-        const type = req.query.type as DataType;
+        const type = req.query.type as string;
 
-        // Validate the 'type' to be one of the expected values
         if (type !== 'detailed' && type !== 'overall') {
-            res.status(400).send('Bad Request: Invalid type parameter');
+            res.status(400).json({ message: 'Bad Request: Invalid type parameter' });
             return;
         }
 
-        // Invoke service function to get the data based on the type query parameter
         const data = await getData(type);
-
-        // Send the data back as JSON
-        res.json(data);
+        res.status(200).json(data);
     } catch (err) {
-        // Log the error and send a 500 Internal Server Error response
         console.error(err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-
-
-// In your fileController
 export const uploadWithIo = (io: SocketIoServer) => {
     console.log('Upload endpoint hit');
-    return async (req: Request, res: Response) => {
-        console.log('Files:', req.files);  // Log the received files
+    return async (req: Request, res: Response): Promise<void> => {
         try {
             const uploadedFile = req.files?.uploadedFile as UploadedFile;
-            const userEmail = req.body?.email as string;
-            console.log('email:', userEmail);
+
+            // Handle null or undefined email
+            const userEmail = req.body?.email || "No email provided";
+
             if (!uploadedFile) {
-                res.status(400).send('No file uploaded');
+                res.status(400).json({ message: 'No file uploaded' });
                 return;
             }
-            console.log('Body:', req.body);
-            console.log('Uploaded file:', uploadedFile);
 
             await uploadFile(uploadedFile, io, userEmail);
-
-            console.log('File uploaded and script executed!');
-            res.json({ message: 'File uploaded and script executed!' });
-
+            res.status(200).json({ message: 'File uploaded and script executed!' });
         } catch (err) {
             console.error(err);
-            res.status(500).send('Internal Server Error');
+            res.status(500).json({ message: 'Internal Server Error' });
         }
     };
 };
 
+export const handleSearchEndpoint = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { searchQuery } = req.body;
 
+        if (typeof searchQuery !== 'string' || searchQuery.trim().length === 0) {
+            res.status(400).json({ message: 'Bad Request: Missing or invalid search query' });
+            return;
+        }
+
+        await handleSearchQuery(searchQuery);
+        res.status(200).json({ message: 'Search query handled and R script executed!' });
+    } catch (err) {
+        console.error('Error handling search:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+export const getSearchResults = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const results: string[] = await readGPTSearchFile();
+        res.status(200).json(results);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};

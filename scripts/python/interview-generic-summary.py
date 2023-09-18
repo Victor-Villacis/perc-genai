@@ -322,6 +322,9 @@ def main():
     with open(os.path.join(outputfolder, "level2.json"), "w", encoding="utf-8") as f:
         json.dump({"Level2Summary": level2}, f, ensure_ascii=False, indent=4)
 
+    with open(os.path.join(outputfolder, ".done"), "w") as f:
+        f.write("done")
+
     logging.basicConfig(level=logging.INFO)
     logging.info("Level 1 and Level 2 summaries have been saved.")
 

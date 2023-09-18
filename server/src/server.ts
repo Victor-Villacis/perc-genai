@@ -4,6 +4,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import fileUpload from 'express-fileupload';
 import { setupSockets } from './sockets/sockets';
+import { watchFolders, watchForDoneFiles } from './services/fileService';
+
 import fileRoutes from './routes/fileRoutes';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -31,7 +33,9 @@ export const io = new Server(httpServer, {
     }
 });
 
-
+export const getIO = () => {
+    return io;
+};
 
 const corsOptions = (req: express.Request, callback: (err: Error | null, options?: CorsOptions) => void) => {
     let corsOptions;
@@ -51,18 +55,26 @@ const corsOptions = (req: express.Request, callback: (err: Error | null, options
 app.use(cors(corsOptions));
 app.use(express.json());
 setupSockets(io);
+watchFolders(io);
+watchForDoneFiles(io);
+
 
 app.use(fileUpload());
 app.use((req, res, next) => {
     console.log('File upload middleware hit');
-    console.log('Files:', req.files);
-    console.log('Body:', req.body);
+    console.log("Received files:", req.files);
+    console.log("Received body:", req.body);
     console.log('Headers:', req.headers);
     console.log('Params:', req.params);
     console.log('Query:', req.query);
     next();
 });
 app.use(fileRoutes(io));
+
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 httpServer.listen(SERVER_PORT, () => {
     console.log(`Server is running at http://${SERVER_HOST}:${SERVER_PORT}`);

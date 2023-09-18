@@ -1,7 +1,7 @@
 import React from 'react';
 import { DropzoneDialog } from 'material-ui-dropzone';
-import { Backdrop, CircularProgress, TextField, Button, LinearProgress } from '@mui/material';
-
+import { Backdrop, TextField, Button, LinearProgress } from '@mui/material';
+import styled from 'styled-components';
 
 interface FileDropzoneProps {
     open: boolean;
@@ -9,6 +9,48 @@ interface FileDropzoneProps {
     handleClose: () => void;
 }
 
+const DropzoneText = styled.p`
+  text-align: center;
+  font-size: 1.2rem;
+  color: #004387;
+  margin-bottom: 5px;
+`;
+
+const SubText = styled.span`
+  font-size: 1rem;
+  color: #a8a8a8;
+  font-weight: 500;
+`;
+
+const LoaderBackdrop = styled(Backdrop)`
+  color: #fff;
+  z-index: 1500;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const EmailBox = styled.div`
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 100%;
+`;
+
+const ValidationMessage = styled.div`
+  color: red;
+  margin-top: 5px;
+`;
+
+const StyledLinearProgress = styled(LinearProgress)`
+  width: 80%;
+  margin-bottom: 20px;
+`;
+
+const StyledButton = styled(Button)`
+  margin-top: 10px;
+`;
 
 export default function FileDropzone({ open, handleOpen, handleClose }: FileDropzoneProps) {
     const [files, setFiles] = React.useState<File[]>([]);
@@ -21,22 +63,22 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
     const handleSave = (newFiles: File[]) => {
         setLoading(true);
 
+        console.log("Uploading file:", newFiles[0]);
+        console.log("Uploading with email:", email);
+
         const formData = new FormData();
         formData.append('uploadedFile', newFiles[0]);
         formData.append('email', email);
 
-
-        // for (var pair of formData.entries()) {
-        //     console.log(pair[0] + ', ' + pair[1]);
-        // }
-
         fetch('http://localhost:3000/upload', {
             method: 'POST',
             body: formData,
-
         })
             .then(response => {
                 if (!response.ok) {
+                    response.text().then(text => {
+                        console.error("Server Response:", text);
+                    });
                     return Promise.reject("Failed to upload file");
                 }
                 return response.json();
@@ -77,13 +119,11 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                 maxFileSize={5000000}
                 onClose={handleClose}
                 dialogTitle={
-                    <p style={{ textAlign: 'center' }}>
-                        <span style={{ color: 'lightblue', fontWeight: 'bold' }}>Upload File and Run Summary</span>
-                        <br />
-                        <span style={{ color: "yellowgreen", fontWeight: 'bold' }}>One File at a Time</span>
-                    </p>
+                    <DropzoneText>
+                        <SubText>Currently supporting single file upload. Multi-file support coming soon!</SubText>
+                    </DropzoneText>
                 }
-                dropzoneText="Drag and drop a file here or click"
+                dropzoneText="Drag and Drop to Generate Summary"
                 submitButtonText={"Run Summary"}
                 filesLimit={1}
                 // remove the horizontal scroll bar after uploading a file
@@ -91,18 +131,12 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
 
             />
 
-            <Backdrop open={loading} style={{ color: '#fff', zIndex: 1500, flexDirection: 'column', alignItems: 'center' }}>
-                <LinearProgress color="primary" style={{ width: '80%', marginBottom: '20px' }} />
-
-                <div style={{
-                    background: '#fff',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.15)',
-                    maxWidth: '400px',
-                    width: '100%',
-                }}>
-                    <h3 style={{ color: "black", textAlign: 'center', margin: '0 0 10px 0' }}>Enter email and get notified when summary is ready.</h3>
+            <LoaderBackdrop open={loading}>
+                <StyledLinearProgress color="primary" />
+                <EmailBox>
+                    <h3 style={{ color: "black", textAlign: 'center', margin: '0 0 10px 0' }}>
+                        Enter email and get notified when summary is ready.
+                    </h3>
                     <TextField
                         fullWidth
                         autoFocus
@@ -115,34 +149,19 @@ export default function FileDropzone({ open, handleOpen, handleClose }: FileDrop
                             readOnly: emailSubmitted,
                         }}
                     />
-                    {validationMessage && (
-                        <div style={{ color: "red", marginTop: "5px" }}>
-                            {validationMessage}
-                        </div>
-                    )}
-
-                    <Button
+                    {validationMessage && <ValidationMessage>{validationMessage}</ValidationMessage>}
+                    <StyledButton
                         fullWidth
                         variant="contained"
                         color="primary"
-                        style={{ marginTop: '10px' }}
                         onClick={handleEmailSubmit}
                         disabled={emailSubmitted}
                     >
                         Submit
-                    </Button>
-                    {emailSubmitted && (
-                        <Button
-                            onClick={() => setEmailSubmitted(false)}
-                        >
-                            Edit Email
-                        </Button>
-                    )}
-
-
-                </div>
-
-            </Backdrop>
+                    </StyledButton>
+                    {emailSubmitted && <Button onClick={() => setEmailSubmitted(false)}>Edit Email</Button>}
+                </EmailBox>
+            </LoaderBackdrop>
         </>
     );
 
